@@ -4,6 +4,7 @@ import numpy as np
 from igs_math import Vector2, Matrix3x3
 from window import Window
 from typing import List
+from copy import deepcopy
 
 
 class Wireframe:
@@ -82,14 +83,14 @@ class Polygon(Wireframe):
         super().__init__()
         if len(points) < 3:
             raise RuntimeError('A polygon must have at least 3 points')
-        self.__points: list[Vector2] = points
+        self.__points: list[Vector2] = deepcopy(points)
 
     @property
     def points(self) -> List[Vector2]:
-        self.__transformed_points: List[Vector2] = []
+        transformed_points: List[Vector2] = []
         for p in self.__points:
-            self.__transformed_points.append(p * self.transformation)
-        return self.__transformed_points
+            transformed_points.append(p * self.transformation)
+        return transformed_points
 
 
 class WireframeRenderer:
@@ -111,17 +112,21 @@ class WireframeRenderer:
             return
         self.__objects.append(object)
 
-    def __create_polygon_lines(self, polygon: Polygon):
+    def __create_polygon_lines(self, polygon: Polygon) -> list[pyglet.shapes.ShapeBase]:
         points = polygon.points
         points_len = len(points)
+        lines = []
         for i in range(1, points_len):
-            pi = points[i]
-            pj = points[i-1]
-            pyglet.shapes.Line(pj.x, pj.y, pi.x, pi.y, batch=self.__batch)
-        plast = points[points_len-1]
-        pstart = points[0]
-        pyglet.shapes.Line(plast.x, plast.y, pstart.x,
-                           pstart.y, batch=self.__batch)
+            pi = self.__window.world_to_viewport(points[i])
+            pj = self.__window.world_to_viewport(points[i-1])
+            l = pyglet.shapes.Line(pj.x, pj.y, pi.x, pi.y, batch=self.__batch)
+            lines.append(l)
+        plast = self.__window.world_to_viewport(points[points_len-1])
+        pstart = self.__window.world_to_viewport(points[0])
+        l = pyglet.shapes.Line(plast.x, plast.y, pstart.x,
+                               pstart.y, batch=self.__batch)
+        lines.append(l)
+        return lines
 
     def draw(self):
         shapes: list[pyglet.shapes.ShapeBase] = list()
@@ -132,5 +137,6 @@ class WireframeRenderer:
                 shapes.append(pyglet.shapes.Line(
                     lsvp.x, lsvp.y, levp.x, levp.y, batch=self.__batch))
             elif isinstance(wireframe, Polygon):
-                self.__create_polygon_lines(wireframe)
+                lines = self.__create_polygon_lines(wireframe)
+                shapes.extend(lines)
         self.__batch.draw()

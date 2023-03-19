@@ -43,7 +43,6 @@ class MainWindow(pyglet.window.Window):
         self.__keyboard_manager.fire(key, modifiers, False)
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int):
-        print(button, modifiers)
         self.__mouse_manager.fire(button, modifiers, True, Vector2(x, y))
 
     def on_mouse_release(self, x, y, button, modifiers):

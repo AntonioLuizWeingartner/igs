@@ -16,21 +16,21 @@ class ViewportSystem(System):
         self.__direction: Vector2 = Vector2(0, 0)
         self.__multiply_factor: float = 0.0
         self.key_manager.register_callback(
-            partial(self.add_to_dir, Vector2(1, 0)), key.A, 0, True)
+            partial(self.add_to_dir, Vector2(-1, 0)), key.A, 0, True)
         self.key_manager.register_callback(partial(
-            self.add_to_dir, Vector2(-1, 0)), key.A, 0, False)
+            self.add_to_dir, Vector2(1, 0)), key.A, 0, False)
         self.key_manager.register_callback(
-            partial(self.add_to_dir, Vector2(-1, 0)), key.D, 0, True)
+            partial(self.add_to_dir, Vector2(1, 0)), key.D, 0, True)
         self.key_manager.register_callback(
-            partial(self.add_to_dir, Vector2(1, 0)), key.D, 0, False)
+            partial(self.add_to_dir, Vector2(-1, 0)), key.D, 0, False)
         self.key_manager.register_callback(
-            partial(self.add_to_dir, Vector2(0, -1)), key.W, 0, True)
+            partial(self.add_to_dir, Vector2(0, 1)), key.W, 0, True)
         self.key_manager.register_callback(
-            partial(self.add_to_dir, Vector2(0, 1)), key.W, 0, False)
+            partial(self.add_to_dir, Vector2(0, -1)), key.W, 0, False)
         self.key_manager.register_callback(
-            partial(self.add_to_dir, Vector2(0, 1)), key.S, 0, True)
+            partial(self.add_to_dir, Vector2(0, -1)), key.S, 0, True)
         self.key_manager.register_callback(
-            partial(self.add_to_dir, Vector2(0, -1)), key.S, 0, False)
+            partial(self.add_to_dir, Vector2(0, 1)), key.S, 0, False)
         self.key_manager.register_callback(
             partial(self.set_mul_factor, 1.0), key.NUM_SUBTRACT, 0, True
         )
