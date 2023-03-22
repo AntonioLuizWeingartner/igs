@@ -141,7 +141,8 @@ class ControlWindow(QMainWindow):
         message_box.setWindowTitle("Information")
         message_box.setText(
             "Not implemented yet. Click on the main window to add a new object, use F1 to change object type.\
-                You can also use the WASD keys to move around and +- to zoom")
+                \n You can also use the WASD keys to move around and +- to zoom \
+                \n in order to draw a wireframe/polygon you must place at least 3 points and ctrl+click")
         message_box.setIcon(QMessageBox.Information)
         message_box.exec()
         return
