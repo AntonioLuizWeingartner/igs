@@ -1,20 +1,33 @@
 import pyglet
 import uuid
 import numpy as np
+from event_system import Event, EventSystem
 from igs_math import Vector2, Matrix3x3
 from window import Window
 from typing import List
 from copy import deepcopy
 
 
-class Wireframe:
+class DrawableObject:
 
-    def __init__(self):
+    obj_count = 0
+
+    def __init__(self, name: str | None = None):
         self.__position = Vector2(0, 0)
         self.__rotation = 0.0
         self.__scale = Vector2(1, 1)
         self.__update_transformation_matrix()
         self.__id = uuid.uuid4()
+        if name is None:
+            self.__name = self.__class__.__name__ + " " + \
+                str(DrawableObject.obj_count)
+        else:
+            self.__name = name
+        DrawableObject.obj_count += 1
+
+    @property
+    def name(self) -> str:
+        return self.__name
 
     def __update_transformation_matrix(self):
         self.__transformation_matrix = Matrix3x3()
@@ -57,14 +70,25 @@ class Wireframe:
     def id(self):
         return self.__id
 
-    def __eq__(self, other: "Wireframe") -> bool:
+    def __eq__(self, other: "DrawableObject") -> bool:
         return self.id == other.id
 
 
-class Line(Wireframe):
+class Point(DrawableObject):
 
-    def __init__(self, start: Vector2, end: Vector2):
-        super().__init__()
+    def __init__(self, pos: Vector2, name: str | None = None):
+        super().__init__(name)
+        self.__pos = pos
+
+    @property
+    def point(self) -> Vector2:
+        return self.__pos * self.transformation
+
+
+class Line(DrawableObject):
+
+    def __init__(self, start: Vector2, end: Vector2, name: str | None = None):
+        super().__init__(name)
         self.__start: Vector2 = start
         self.__end: Vector2 = end
 
@@ -77,10 +101,10 @@ class Line(Wireframe):
         return self.__end * self.transformation
 
 
-class Polygon(Wireframe):
+class Wireframe(DrawableObject):
 
-    def __init__(self, points: list[Vector2]):
-        super().__init__()
+    def __init__(self, points: list[Vector2], name: str | None = None):
+        super().__init__(name)
         if len(points) < 3:
             raise RuntimeError('A polygon must have at least 3 points')
         self.__points: list[Vector2] = deepcopy(points)
@@ -93,26 +117,34 @@ class Polygon(Wireframe):
         return transformed_points
 
 
-class WireframeRenderer:
+class ObjectRenderer:
 
-    def __init__(self, window: Window):
-        self.__objects: list[Wireframe] = []
+    def __init__(self, window: Window, evt_sys: EventSystem):
+        self.__objects: list[DrawableObject] = []
         self.__window = window
         self.__batch = pyglet.graphics.Batch()
+        self.__evt_sys = evt_sys
+        self.__evt_sys.register_callback(
+            Event.REMOVE_DRAWALBE, self.removeObject)
+        self.__evt_sys.register_callback(
+            Event.ADD_DRAWABLE, self.addObject
+        )
 
-    def hasObject(self, object: Wireframe):
+    def hasObject(self, object: DrawableObject):
         return object in self.__objects
 
-    def removeWireframe(self, object: Wireframe):
+    def removeObject(self, object: DrawableObject):
         if self.hasObject(object):
             self.__objects.remove(object)
+            self.__evt_sys.fire(Event.DRAWABLE_REMOVED, object)
 
-    def addWireframe(self, object: Wireframe):
+    def addObject(self, object: DrawableObject):
         if self.hasObject(object):
             return
         self.__objects.append(object)
+        self.__evt_sys.fire(Event.DRAWABLE_ADDED, object)
 
-    def __create_polygon_lines(self, polygon: Polygon) -> list[pyglet.shapes.ShapeBase]:
+    def __create_polygon_lines(self, polygon: Wireframe) -> list[pyglet.shapes.ShapeBase]:
         points = polygon.points
         points_len = len(points)
         lines = []
@@ -130,13 +162,17 @@ class WireframeRenderer:
 
     def draw(self):
         shapes: list[pyglet.shapes.ShapeBase] = list()
-        for wireframe in self.__objects:
-            if isinstance(wireframe, Line):
-                lsvp = self.__window.world_to_viewport(wireframe.start)
-                levp = self.__window.world_to_viewport(wireframe.end)
+        for drawable in self.__objects:
+            if isinstance(drawable, Line):
+                lsvp = self.__window.world_to_viewport(drawable.start)
+                levp = self.__window.world_to_viewport(drawable.end)
                 shapes.append(pyglet.shapes.Line(
                     lsvp.x, lsvp.y, levp.x, levp.y, batch=self.__batch))
-            elif isinstance(wireframe, Polygon):
-                lines = self.__create_polygon_lines(wireframe)
+            elif isinstance(drawable, Wireframe):
+                lines = self.__create_polygon_lines(drawable)
                 shapes.extend(lines)
+            elif isinstance(drawable, Point):
+                point = self.__window.world_to_viewport(drawable.point)
+                shapes.append(pyglet.shapes.Circle(
+                    point.x, point.y, 2, batch=self.__batch))
         self.__batch.draw()

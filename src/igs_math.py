@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import annotations, division
 import numpy as np
 
 
@@ -74,6 +74,10 @@ class Vector2:
     def __sub__(self, other: Vector2) -> Vector2:
         return Vector2(self.x - other.x, self.y - other.y)
 
+    def __isub__(self, other: Vector2) -> Vector2:
+        self.__np_vec -= np.array([[other.x, other.y, 0.0]])
+        return self
+
     @property
     def np_vec(self):
         return self.__np_vec
@@ -91,6 +95,9 @@ class Vector2:
         elif isinstance(other, float):
             self.__np_vec *= other
         return self
+
+    def __truediv__(self, other: float) -> Vector2:
+        return Vector2(self.x/other, self.y/other)
 
 
 myVec = Vector2(1, 0)
