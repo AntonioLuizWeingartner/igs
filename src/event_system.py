@@ -5,6 +5,12 @@ import uuid
 
 class Event(Enum):
     MOUSE_MOVE = 0
+    ADD_DRAWABLE = 1
+    MOVE_WINDOW = 2
+    ZOOM_WINDOW = 3
+    DRAWABLE_ADDED = 4
+    REMOVE_DRAWALBE = 5
+    DRAWABLE_REMOVED = 6
 
 
 class EventSystem:

@@ -9,6 +9,18 @@ class Window:
         self.w_max = w_max
         self.vp: Viewport = viewport
 
+    def move(self, direction: Vector2):
+        self.w_min += direction
+        self.w_max += direction
+
+    def zoom(self, zoom: Vector2):
+        pre_min = self.w_min + zoom
+        pre_max = self.w_max - zoom
+        if pre_max.x <= pre_min.x or pre_max.y <= pre_min.x:
+            return
+        self.w_max = pre_max
+        self.w_min = pre_min
+
     def world_to_viewport(self, worldCoord: Vector2) -> Vector2:
         transformation = self.__build_viewport_matrix()
         return worldCoord * transformation

@@ -1,18 +1,14 @@
+import multiprocessing.connection
 import pyglet
 import numpy as np
-from wireframe import Line, WireframeRenderer
+from drawable import Line, ObjectRenderer
 from igs_math import Vector2
 from viewport import Viewport
 from window import Window
 from peripheral_manager import PeripheralManager
 from event_system import EventSystem, Event
 from system import SystemManager
-
-
-def init_scene(renderer: WireframeRenderer):
-    myLine = Line(Vector2(-100, -1), Vector2(100, 10))
-    myLine.position = Vector2(0, 0)
-    renderer.addWireframe(myLine)
+from typing import Any
 
 
 class MainWindow(pyglet.window.Window):
@@ -20,19 +16,30 @@ class MainWindow(pyglet.window.Window):
     def __init__(self, width: int, height: int, keyboard_manager: PeripheralManager, mouse_manager: PeripheralManager,
                  event_system: EventSystem, viewport: Viewport, window: Window,
                  sys_manager: SystemManager,
-                 wireframe_renderer: WireframeRenderer):
+                 object_renderer: ObjectRenderer, conn: multiprocessing.connection.Connection):
         super().__init__(width, height)
         self.__viewport: Viewport = viewport
         self.__window: Window = window
         self.__keyboard_manager: PeripheralManager = keyboard_manager
         self.__mouse_manager: PeripheralManager = mouse_manager
         self.__event_system: EventSystem = event_system
-        self.__wireframe_renderer: WireframeRenderer = wireframe_renderer
+        self.__wireframe_renderer: ObjectRenderer = object_renderer
         self.__sys_manager: SystemManager = sys_manager
-        init_scene(self.__wireframe_renderer)
+        self.__conn: multiprocessing.connection.Connection = conn
+        self.__event_system.register_callback(
+            Event.DRAWABLE_ADDED, lambda drawable: self.__conn.send((Event.DRAWABLE_ADDED, drawable)))
+        self.__event_system.register_callback(
+            Event.DRAWABLE_REMOVED, lambda drawable: self.__conn.send(
+                (Event.DRAWABLE_REMOVED, drawable))
+        )
 
     def on_draw(self):
         self.clear()
+
+        if self.__conn.poll():
+            message: tuple[Event, Any] = self.__conn.recv()
+            self.__event_system.fire(message[0], message[1])
+
         self.__sys_manager.update()
         self.__wireframe_renderer.draw()
 
