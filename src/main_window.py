@@ -27,6 +27,8 @@ class MainWindow(pyglet.window.Window):
         self.__sys_manager: SystemManager = sys_manager
         self.__conn: multiprocessing.connection.Connection = conn
         self.__event_system.register_callback(
+            Event.DRAWABLE_SCALED, lambda drawable: self.__conn.send((Event.DRAWABLE_SCALED, drawable)))
+        self.__event_system.register_callback(
             Event.DRAWABLE_ADDED, lambda drawable: self.__conn.send((Event.DRAWABLE_ADDED, drawable)))
         self.__event_system.register_callback(
             Event.DRAWABLE_REMOVED, lambda drawable: self.__conn.send(
