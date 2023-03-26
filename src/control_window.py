@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QListWidget, QPushButton, QInputDialog, QDialog, QLabel, QLineEdit, QVBoxLayout, QComboBox, QMessageBox, QListWidgetItem
 from event_system import EventSystem
 from igs_math import Vector2
+from manage_object_window import ManageObjectWindow
 
 
 class ObjectDialog(QDialog):
@@ -72,7 +73,7 @@ class ControlWindow(QMainWindow):
     def __init__(self, conn: multiprocessing.connection.Connection):
         super().__init__()
         self.__conn = conn
-        self.setWindowTitle("List Widget Example")
+        self.setWindowTitle("Objects Manager")
         self.setWindowFlags(Qt.WindowStaysOnTopHint)  # type: ignore
         self.setFixedSize(200, 600)
         self.resize(200, 600)
@@ -81,6 +82,7 @@ class ControlWindow(QMainWindow):
         self.setCentralWidget(main_widget)
 
         self.list_widget = QListWidget()
+        self.list_widget.itemDoubleClicked.connect(self.open_edit_drawable)
         self.conn_poll_timer = QTimer()
         self.conn_poll_timer.start()
         self.conn_poll_timer.timeout.connect(self.poll_conn)
@@ -153,7 +155,13 @@ class ControlWindow(QMainWindow):
             return
         selectedItem: QListWidgetItem = self.list_widget.currentItem()
         self.__conn.send((Event.REMOVE_DRAWALBE, selectedItem.data(1)))
-
+    
+    def open_edit_drawable(self):
+        if self.list_widget.count() == 0 or self.list_widget.currentItem() == None:
+            return
+        selectedItem: QListWidgetItem = self.list_widget.currentItem()
+        self.manage_object_window = ManageObjectWindow(selectedItem, self.__conn)
+        self.manage_object_window.show()
 
 def create_control_window(conn: multiprocessing.connection.Connection):
     app = QApplication(sys.argv)

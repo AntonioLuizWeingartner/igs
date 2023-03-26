@@ -73,6 +73,9 @@ class DrawableObject:
     def __eq__(self, other: "DrawableObject") -> bool:
         return self.id == other.id
 
+    def center(self) -> Vector2:
+        return self.__position
+
 
 class Point(DrawableObject):
 
@@ -100,6 +103,9 @@ class Line(DrawableObject):
     def end(self):
         return self.__end * self.transformation
 
+    def center(self):
+        return Vector2(((self.__end.x + self.__start.x)/2), ((self.__end.y + self.__start.y)/2))
+
 
 class Wireframe(DrawableObject):
 
@@ -116,6 +122,15 @@ class Wireframe(DrawableObject):
             transformed_points.append(p * self.transformation)
         return transformed_points
 
+    def center(self):
+        sum_x = 0
+        sum_y = 0
+        for point in self.__points:
+            sum_x += point.x
+            sum_y += point.y
+        n = len(self.__points)
+        return Vector2(sum_x/n, sum_y/n)
+
 
 class ObjectRenderer:
 
@@ -129,6 +144,18 @@ class ObjectRenderer:
         self.__evt_sys.register_callback(
             Event.ADD_DRAWABLE, self.addObject
         )
+        self.__evt_sys.register_callback(
+            Event.DRAWABLE_SCALED, self.scale_object
+        )
+
+    def scale_object(self, object: DrawableObject):
+        if self.hasObject(object):
+            for obj in self.__objects:
+                if obj.id == object.id:
+                    center = obj.center()
+                    # obj.transform(Vector2(-center.x, -center.y))
+                    obj.scale = Vector2(2, 1)
+                    # obj.transform(center)
 
     def hasObject(self, object: DrawableObject):
         return object in self.__objects

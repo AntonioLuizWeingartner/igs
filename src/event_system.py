@@ -11,6 +11,9 @@ class Event(Enum):
     DRAWABLE_ADDED = 4
     REMOVE_DRAWALBE = 5
     DRAWABLE_REMOVED = 6
+    DRAWABLE_SCALED = 7
+    DRAWABLE_TRANSLATED = 8
+    DRAWABLE_ROTATED = 9
 
 
 class EventSystem:
