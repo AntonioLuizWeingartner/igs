@@ -6,6 +6,7 @@ from igs_math import Vector2, Matrix3x3
 from window import Window
 from typing import List
 from copy import deepcopy
+from enum import Enum
 
 
 class DrawableObject:
@@ -85,10 +86,20 @@ class ScaleParameters:
         self.vector = Vector2(x, y)
 
 
+class Rotation(Enum):
+    FROM_CENTER_OF_WORLD = 0
+    FROM_CENTER_OF_OBJECT = 1
+    FROM_ARBITRARY_POINT = 2
+
+
 class RotateParameters:
-    def __init__(self, obj: DrawableObject, angle: int):
+    def __init__(self, obj: DrawableObject, angle: int, rotation: Rotation, x: int, y: int):
         self.angle = angle
         self.obj = obj
+        self.rotation = rotation
+        self.x = x
+        self.y = y
+        self.vector = Vector2(x, y)
 
 
 class TranslateParameters:
@@ -189,10 +200,20 @@ class ObjectRenderer:
                     obj.position = params.vector
 
     def rotate_obj(self, params: RotateParameters):
+        object_to_rotate = None
         if self.hasObject(params.obj):
             for obj in self.__objects:
                 if obj.id == params.obj.id:
-                    obj.rotation = params.angle
+                    object_to_rotate = obj
+
+        if params.rotation == Rotation.FROM_ARBITRARY_POINT:
+            rotate_point = params.vector
+        elif params.rotation == Rotation.FROM_CENTER_OF_WORLD:
+            rotate_point = Vector(0, 0)
+        else:
+            rotate_point = obj.center()
+
+        obj.rotation = params.angle
 
     def hasObject(self, object: DrawableObject):
         return object in self.__objects
