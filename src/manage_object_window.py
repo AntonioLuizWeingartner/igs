@@ -121,21 +121,31 @@ class ManageObjectWindow(QMainWindow):
         grid.addWidget(third_row, 3, 0)
 
     def scale_obj(self):
-        x = int(self.scaling_x_value_input.toPlainText())
-        y = int(self.scaling_y_value_input.toPlainText())
-        obj: DrawableObject = self.__object.data(1)
-        self.__conn.send(
-            (Event.DRAWABLE_SCALED, ScaleParameters(obj, x, y)))
+        try:
+            x = int(self.scaling_x_value_input.toPlainText())
+            y = int(self.scaling_y_value_input.toPlainText())
+            obj: DrawableObject = self.__object.data(1)
+            self.__conn.send(
+                (Event.DRAWABLE_SCALED, ScaleParameters(obj, x, y)))
+        except:
+            print('No value given')
 
     def translate_obj(self):
-        x = int(self.translation_x_input.toPlainText())
-        y = int(self.translation_y_input.toPlainText())
-        obj: DrawableObject = self.__object.data(1)
-        self.__conn.send((Event.DRAWABLE_TRANSLATED,
-                         TranslateParameters(obj, x, y)))
+        try:
+            x = int(self.translation_x_input.toPlainText())
+            y = int(self.translation_y_input.toPlainText())
+            obj: DrawableObject = self.__object.data(1)
+            self.__conn.send((Event.DRAWABLE_TRANSLATED,
+                              TranslateParameters(obj, x, y)))
+        except:
+            print('No value given')
 
     def rotate_obj(self):
-        angle = int(self.angle_input.toPlainText())
+        try:
+            angle = int(self.angle_input.toPlainText())
+        except:
+            print('No value given')
+            return
         obj: DrawableObject = self.__object.data(1)
         try:
             x = int(self.rotate_x_input.toPlainText())
