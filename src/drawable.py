@@ -209,11 +209,11 @@ class ObjectRenderer:
         if params.rotation == Rotation.FROM_ARBITRARY_POINT:
             rotate_point = params.vector
         elif params.rotation == Rotation.FROM_CENTER_OF_WORLD:
-            rotate_point = Vector(0, 0)
+            rotate_point = Vector2(0, 0)
         else:
             rotate_point = obj.center()
 
-        obj.rotation = params.angle
+        object_to_rotate.rotation = params.angle
 
     def hasObject(self, object: DrawableObject):
         return object in self.__objects
