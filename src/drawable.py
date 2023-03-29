@@ -6,6 +6,7 @@ from igs_math import Vector2, Matrix3x3
 from window import Window
 from typing import List
 from copy import deepcopy
+from enum import Enum
 
 
 class DrawableObject:
@@ -75,6 +76,38 @@ class DrawableObject:
 
     def center(self) -> Vector2:
         return self.__position
+
+
+class ScaleParameters:
+    def __init__(self, obj: DrawableObject, x: int, y: int):
+        self.obj = obj
+        self.x = x
+        self.y = y
+        self.vector = Vector2(x, y)
+
+
+class Rotation(Enum):
+    FROM_CENTER_OF_WORLD = 0
+    FROM_CENTER_OF_OBJECT = 1
+    FROM_ARBITRARY_POINT = 2
+
+
+class RotateParameters:
+    def __init__(self, obj: DrawableObject, angle: int, rotation: Rotation, x: int, y: int):
+        self.angle = angle
+        self.obj = obj
+        self.rotation = rotation
+        self.x = x
+        self.y = y
+        self.vector = Vector2(x, y)
+
+
+class TranslateParameters:
+    def __init__(self, obj: DrawableObject, x: int, y: int):
+        self.obj = obj
+        self.x = x
+        self.y = y
+        self.vector = Vector2(x, y)
 
 
 class Point(DrawableObject):
@@ -147,15 +180,40 @@ class ObjectRenderer:
         self.__evt_sys.register_callback(
             Event.DRAWABLE_SCALED, self.scale_object
         )
+        self.__evt_sys.register_callback(
+            Event.DRAWABLE_ROTATED, self.rotate_obj
+        )
+        self.__evt_sys.register_callback(
+            Event.DRAWABLE_TRANSLATED, self.translate_obj
+        )
 
-    def scale_object(self, object: DrawableObject):
-        if self.hasObject(object):
+    def scale_object(self, params: ScaleParameters):
+        if self.hasObject(params.obj):
             for obj in self.__objects:
-                if obj.id == object.id:
-                    center = obj.center()
-                    # obj.transform(Vector2(-center.x, -center.y))
-                    obj.scale = Vector2(2, 1)
-                    # obj.transform(center)
+                if obj.id == params.obj.id:
+                    obj.scale = params.vector
+
+    def translate_obj(self, params: TranslateParameters):
+        if self.hasObject(params.obj):
+            for obj in self.__objects:
+                if obj.id == params.obj.id:
+                    obj.position = params.vector
+
+    def rotate_obj(self, params: RotateParameters):
+        object_to_rotate = None
+        if self.hasObject(params.obj):
+            for obj in self.__objects:
+                if obj.id == params.obj.id:
+                    object_to_rotate = obj
+
+        if params.rotation == Rotation.FROM_ARBITRARY_POINT:
+            rotate_point = params.vector
+        elif params.rotation == Rotation.FROM_CENTER_OF_WORLD:
+            rotate_point = Vector2(0, 0)
+        else:
+            rotate_point = obj.center()
+
+        object_to_rotate.rotation = params.angle
 
     def hasObject(self, object: DrawableObject):
         return object in self.__objects
