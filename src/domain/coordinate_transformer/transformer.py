@@ -2,6 +2,7 @@ from domain.graphics.viewport import Viewport
 from domain.graphics.window import Window
 from domain.math.matrix3x3 import Matrix3x3
 from domain.math.vector2 import Vector2
+from src.domain.world_object.object import WorldObject
 
 
 class CoordinateTransformer:
@@ -9,12 +10,6 @@ class CoordinateTransformer:
     def __init__(self, viewport: Viewport, window: Window):
         self.__viewport = viewport
         self.__window = window
-
-    def local_to_world(self, point: Vector2, model_matrix: Matrix3x3) -> Vector2:
-        """
-        Converts an arbitrary point in object local space to world space using its modelMatrix
-        """
-        return point * model_matrix
 
     def world_to_normalized_window(self) -> Matrix3x3:
         """
@@ -46,4 +41,12 @@ class CoordinateTransformer:
         """
         transformation = Matrix3x3()
         transformation.translate(self.__viewport.min)
+        return transformation
+
+    @classmethod
+    def local_to_world(cls, world_object: WorldObject) -> Matrix3x3:
+        transformation = Matrix3x3()
+        transformation.scale(world_object.scale)
+        transformation.rotate(world_object.rotation)
+        transformation.translate(world_object.position)
         return transformation
