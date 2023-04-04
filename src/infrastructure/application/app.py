@@ -9,4 +9,5 @@ class Application:
         self.__main_window = main_window
 
     def run(self):
+        self.__main_window.set_visible(True)
         pyglet.app.run()

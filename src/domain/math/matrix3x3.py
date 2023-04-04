@@ -7,8 +7,11 @@ class Matrix3x3:
     Nice interface to encapsulate a numpy matrix
     """
 
-    def __init__(self):
-        self.identity()
+    def __init__(self, np_mat: np.ndarray | None = None):
+        if np_mat is None:
+            self.identity()
+        else:
+            self.__np_mat = np_mat
 
     def __repr__(self) -> str:
         return self.__np_mat.__repr__()
@@ -31,6 +34,9 @@ class Matrix3x3:
 
     def invert(self):
         self.__np_mat = np.linalg.inv(self.__np_mat)
+
+    def __mul__(self, other: Matrix3x3) -> Matrix3x3:
+        return Matrix3x3(self.__np_mat @ other.np_mat)
 
     @property
     def np_mat(self) -> np.ndarray:

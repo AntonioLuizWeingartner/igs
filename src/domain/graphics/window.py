@@ -1,3 +1,4 @@
+import numpy as np
 from domain.math.vector2 import Vector2
 
 
@@ -20,8 +21,19 @@ class Window:
     def orientation(self) -> float:
         return self.__orientation
 
+    @property
+    def up(self) -> Vector2:
+        """
+        Returns the window 'up' vector in world space
+        """
+        return Vector2(np.cos(self.__orientation+np.pi/2), np.sin(self.__orientation+np.pi/2))
+
+    @property
+    def right(self) -> Vector2:
+        return Vector2(np.cos(self.__orientation), np.sin(self.__orientation))
+
     def rotate(self, amount: float):
-        self.__orientation = amount
+        self.__orientation += amount
 
     def translate(self, amount: Vector2):
         self.__min += amount

@@ -2,7 +2,7 @@ from domain.graphics.viewport import Viewport
 from domain.graphics.window import Window
 from domain.math.matrix3x3 import Matrix3x3
 from domain.math.vector2 import Vector2
-from src.domain.world_object.object import WorldObject
+from domain.world_object.object import WorldObject
 
 
 class CoordinateTransformer:
@@ -50,3 +50,7 @@ class CoordinateTransformer:
         transformation.rotate(world_object.rotation)
         transformation.translate(world_object.position)
         return transformation
+
+    def world_to_screen(self) -> Matrix3x3:
+        return self.world_to_normalized_window() * self.window_to_viewport() * \
+            self.viewport_to_screen()

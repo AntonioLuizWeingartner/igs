@@ -9,6 +9,8 @@ class Event(Enum):
     MOUSE_MOVE = 2,
     MOUSE_PRESS = 3,
     MOUSE_RELEASE = 4,
+    MOUSE_SCROLL = 5,
+    MOUSE_DRAG = 6
 
 
 class EventSystem:
@@ -28,6 +30,7 @@ class EventSystem:
             del self.__callbacks[event][callback_id]
 
     def fire(self, event: Event, *args, **kwargs):
+        print("Firing event: ", event, *args, **kwargs)
         if event in self.__callbacks:
             for callback_id in self.__callbacks[event]:
                 self.__callbacks[event][callback_id](*args, **kwargs)
