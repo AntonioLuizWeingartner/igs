@@ -27,7 +27,8 @@ class Matrix3x3:
 
     def scale(self, scale: Vector2):
         scale_mat = np.array([[scale.x, 0, 0], [0, scale.y, 0], [0, 0, 1]])
-        self.__np_mat = self.__np_mat @ scale_mat
+        np_mat = self.__np_mat @ scale_mat
+        self.__np_mat = np_mat
 
     def invert(self):
         self.__np_mat = np.linalg.inv(self.__np_mat)
