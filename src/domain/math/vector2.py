@@ -1,7 +1,7 @@
 from __future__ import annotations, division
 import numpy as np
-
 from domain.math.matrix3x3 import Matrix3x3
+from typing import List
 
 
 class Vector2:
@@ -69,3 +69,13 @@ class Vector2:
 
     def __neg__(self) -> Vector2:
         return Vector2(-self.x, -self.y)
+
+    @classmethod
+    def average(cls, vectors: List[Vector2]) -> Vector2:
+        avg_x = np.mean(np.array(list((map(lambda vec: vec.x, vectors)))))
+        avg_y = np.mean(np.array(list((map(lambda vec: vec.y, vectors)))))
+        return Vector2(float(avg_x), float(avg_y))
+
+
+        
+        

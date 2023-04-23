@@ -10,7 +10,10 @@ class Event(Enum):
     MOUSE_PRESS = 3,
     MOUSE_RELEASE = 4,
     MOUSE_SCROLL = 5,
-    MOUSE_DRAG = 6
+    MOUSE_DRAG = 6,
+    CREATE_POLYGON = 7,
+    CREATE_POINT = 8,
+    CREATE_LINE = 9,
 
 
 class EventSystem:

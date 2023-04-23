@@ -54,7 +54,7 @@ class WorldObject:
     """
     next_obj_id = 0
 
-    def __init__(self, id: UUID, event_system: EventSystem, window: Window, position: Vector2 = Vector2(0, 0), scale: Vector2 = Vector2(1, 1), rotation: float = 0.0):
+    def __init__(self, id: UUID, event_system: EventSystem, window: Window, position: Vector2 = Vector2(0, 0), scale: Vector2 = Vector2(1, 1), rotation: float = 0.0, name: str | None = None):
         self.position = position
         self.scale = scale
         self.rotation = rotation
@@ -62,7 +62,8 @@ class WorldObject:
         self.__event_system = event_system
         self.__id = id
         self.__window = window
-        self.__name = "Object " + str(WorldObject.next_obj_id)
+        self.__name = "Object " + \
+            str(WorldObject.next_obj_id) if name is None else name
 
     def add_component(self, cp: Type[WorldObjectComponent]) -> WorldObjectComponent:
         uuid = uuid4()

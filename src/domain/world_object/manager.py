@@ -14,9 +14,10 @@ class WorldObjectManager:
         self.__registered_objects: Dict[UUID, WorldObject] = dict()
         self.__window = window
 
-    def create(self) -> WorldObject:
+    def create(self, name: str | None = None) -> WorldObject:
         uuid = uuid4()
-        object = WorldObject(uuid, self.__event_system, self.__window)
+        object = WorldObject(uuid, self.__event_system,
+                             self.__window, name=name)
         self.__registered_objects[uuid] = object
         return object
 

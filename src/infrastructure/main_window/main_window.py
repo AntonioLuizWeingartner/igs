@@ -12,6 +12,7 @@ class MainWindow(pyglet.window.Window):
         self.__event_sysyem = event_system
         self.__line_renderer = line_renderer
         self.__object_manager = object_manager
+        self.set_caption('igs')
 
     def on_draw(self):
         self.clear()
